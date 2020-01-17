@@ -21,7 +21,7 @@ def connect_to_mobile(port: int):
     for interface in interfaces():
         try:
             for link in ifaddresses(interface)[AF_INET]:
-                ip_list.append(f"{link['addr']}:{port}")
+                ip_list.append(f"http://{link['addr']}:{port}")
         except KeyError:
             pass
     print("Try connecting to any 1 of these:")
