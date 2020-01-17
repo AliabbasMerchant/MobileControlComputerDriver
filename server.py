@@ -1,8 +1,28 @@
 from typing import Optional
+from flask import Flask, request
+from flask_cors import CORS
+import json
+
+import globals
+
+app = Flask(__name__)
+CORS(app)
+
+
+@app.route('/connect', methods=['POST'])
+def accept_connection():
+    body = request.form.to_dict()
+    print(body)
+    try:
+        if body['connectionSecret'] == globals.connection_secret:
+            return json.dumps({"ok": True})
+        else:
+            return json.dumps({"ok": False, "msg": "Invalid Connection Secret"})
+    except KeyError:
+        return json.dumps({"ok": False, "msg": "Please provide a Connection Secret"})
 
 
 def serve(port: int) -> Optional[int]:
-    # TODO Start Server
-    # TODO Handler
+    app.run(port=port)
     # if error, return None
     return port

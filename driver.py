@@ -9,11 +9,12 @@ import firewall
 def start_server() -> Optional[int]:
     for port in globals.port_options:
         if firewall.open_port(port):
-            return server.serve(port)
+            return port
     return None
 
 
 def connect_to_mobile(port: int):
+    globals.connection_secret = input("Enter Connection Secret: ")
     # from socket import getaddrinfo, AF_INET, gethostname
     # ip_list = [ip[4][0] for ip in getaddrinfo(host=gethostname(), port=None, family=AF_INET)]
     ip_list = []
@@ -25,7 +26,6 @@ def connect_to_mobile(port: int):
             pass
     print("Try connecting to any 1 of these:")
     print(" or ".join(ip_list))
-    globals.connection_secret = input("Enter connection secret: ")
 
 
 def handle_controls():
@@ -38,6 +38,7 @@ def main():
         print("Cannot start the driver")
         exit(1)
     connect_to_mobile(port)
+    server.serve(port)
 
 
 if __name__ == '__main__':
