@@ -38,7 +38,5 @@ def handle_signals():
         return json.dumps({"ok": False, "msg": "Please provide a Connection Secret"})
 
 
-def serve(port: int) -> Optional[int]:
-    app.run(port=port)
-    # if error, return None
-    return port
+def serve(port: int):
+    app.run(port=port, host='0.0.0.0')

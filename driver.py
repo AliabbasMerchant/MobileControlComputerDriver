@@ -3,13 +3,12 @@ from typing import Optional
 
 import server
 import globals
-import firewall
 
 
 def start_server() -> Optional[int]:
     for port in globals.port_options:
-        if firewall.open_port(port):
-            return port
+        # if firewall.open_port(port):  # windows handles this on its own
+        return port
     return None
 
 
