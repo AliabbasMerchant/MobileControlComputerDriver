@@ -19,4 +19,6 @@ def handle(request: dict) -> Optional[str]:
         y = y * H / h
         print(x, y)
         pyautogui.moveTo(x, y)
+    elif request['action'] == 'click':
+        pyautogui.click(button=request['signal'])
     return None
