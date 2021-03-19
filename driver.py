@@ -4,18 +4,14 @@ from typing import Optional
 import server
 import globals
 
-
 def start_server() -> Optional[int]:
     for port in globals.port_options:
-        # if firewall.open_port(port):  # windows handles this on its own
         return port
     return None
 
 
 def connect_to_mobile(port: int):
     globals.connection_secret = input("Enter Connection Secret: ")
-    # from socket import getaddrinfo, AF_INET, gethostname
-    # ip_list = [ip[4][0] for ip in getaddrinfo(host=gethostname(), port=None, family=AF_INET)]
     ip_list = []
     for interface in interfaces():
         try:
