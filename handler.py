@@ -5,7 +5,6 @@ import json
 pyautogui.FAILSAFE = False
 
 def handle(request: dict) -> Optional[str]:
-    print(request['signal'], request['action'])
     if request['action'] == 'type':
         pyautogui.press(request['signal'])
     elif request['action'] == 'mouse':
@@ -17,7 +16,6 @@ def handle(request: dict) -> Optional[str]:
         W, H = pyautogui.size()
         x = x * W / w
         y = y * H / h
-        print(x, y)
         pyautogui.moveTo(x, y)
     elif request['action'] == 'click':
         pyautogui.click(button=request['signal'])

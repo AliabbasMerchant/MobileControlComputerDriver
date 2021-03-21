@@ -22,11 +22,6 @@ def connect_to_mobile(port: int):
     print("Try connecting to any 1 of these:")
     print(" or ".join(ip_list))
 
-
-def handle_controls():
-    pass
-
-
 def main():
     port = start_server()
     if not port:

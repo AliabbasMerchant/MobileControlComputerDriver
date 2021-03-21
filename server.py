@@ -1,14 +1,12 @@
-from typing import Optional
 from flask import Flask, request
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit, send
-from threading import Thread
-from zlib import compress
+from flask_socketio import SocketIO, emit
 from mss import mss, tools
 import json
 
 import globals
 import handler
+import logger
 
 WIDTH = 1920
 HEIGHT = 1080
@@ -23,10 +21,13 @@ def accept_connection():
     body = request.form.to_dict()
     try:
         if body['connectionSecret'] == globals.connection_secret:
+            logger.log(f"Client {request.remote_addr} Connected!")
             return json.dumps({"ok": True})
         else:
+            logger.debug(f"Client {request.remote_addr} sent invalid connection secret. Connection declined")
             return json.dumps({"ok": False, "msg": "Invalid Connection Secret"})
     except KeyError:
+        logger.debug(f"Client {request.remote_addr} did not send a connection secret. Connection declined")
         return json.dumps({"ok": False, "msg": "Please provide a Connection Secret"})
 
 
@@ -35,19 +36,25 @@ def handle_signals():
     body = request.form.to_dict()
     try:
         if body['connectionSecret'] == globals.connection_secret:
+            logger.log(f"Received command {body} from client {request.remote_addr}")
             error = handler.handle(body)
             if error:
+                logger.log(f"Error {error} while accepting control from client {request.remote_addr}")
                 return json.dumps({"ok": False, "msg": error})
             else:
+                logger.log(f"Successfully exectued control {body} from client {request.remote_addr}")
                 return json.dumps({"ok": True})
         else:
+            logger.debug(f"Client {request.remote_addr} sent invalid connection secret. Control declined")
             return json.dumps({"ok": False, "msg": "Invalid Connection Secret"})
     except KeyError:
+        logger.debug(f"Client {request.remote_addr} did not send a connection secret. Control declined")
         return json.dumps({"ok": False, "msg": "Please provide a Connection Secret"})
 
 
 @socketio.on('connect')
 def test_connect():
+    logger.log(f"Client socket connection established")
     emit('after connect',  {'data':'Connected Successfully'})
 
 @socketio.on('Start Recieving Data')
@@ -68,11 +75,12 @@ def send_data(msg):
 
             # Send pixels
             data["pixels"] = pixels
-
             emit('data', {'msg': data})
+            logger.debug(f"Screen frame shared with client")
 
 @socketio.on('Close connection')
 def close_connection(msg):
+    logger.log(f"Client socket connection closed")
     global loop
     loop = False
 
