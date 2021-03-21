@@ -16,6 +16,12 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 loop = True
 
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
 @app.route('/connect', methods=['POST'])
 def accept_connection():
     body = request.form.to_dict()
@@ -28,6 +34,22 @@ def accept_connection():
             return json.dumps({"ok": False, "msg": "Invalid Connection Secret"})
     except KeyError:
         logger.debug(f"Client {request.remote_addr} did not send a connection secret. Connection declined")
+        return json.dumps({"ok": False, "msg": "Please provide a Connection Secret"})
+
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    body = request.form.to_dict()
+    try:
+        if body['connectionSecret'] == globals.connection_secret:
+            logger.log(f"Shutting down the Server!")
+            shutdown_server()
+            return json.dumps({"ok": True, "msg": "Server Shutdown Completed"})
+        else:
+            logger.debug(f"Client {request.remote_addr} sent invalid connection secret.Server Shutdown declined")
+            return json.dumps({"ok": False, "msg": "Server Shutdown Initialisation failed!!"})
+    except KeyError:
+        logger.debug(f"Client {request.remote_addr} did not send a connection secret.Server Shutdown declined")
         return json.dumps({"ok": False, "msg": "Please provide a Connection Secret"})
 
 
